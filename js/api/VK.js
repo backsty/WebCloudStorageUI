@@ -9,7 +9,9 @@
 class VK {
 
   static ACCESS_TOKEN = window.env.ACCESS_TOKEN;
-  static lastCallback = () => {};
+  static lastCallback;
+  static screenNameCallback;
+
 
   /**
    * Получает изображения из профиля VK.
@@ -17,11 +19,11 @@ class VK {
    * @param {function} callback - Функция обратного вызова для обработки полученных данных.
    */
   static get(id = '', callback){
-    this.lastCallback = callback;
-
-    let script = document.createElement('SCRIPT');
-    script.src = `https://api.vk.com/method/photos.get?owner_id=${id}&album_id=profile&photo_sizes=1&count=1000&access_token=${this.ACCESS_TOKEN}&v=5.199&callbakc=VK.lastCallback.callbackfn`;
-    document.getElementsByTagName('head')[0].appendChild(script);
+    VK.lastCallback = callback;
+    const script = document.createElement('script');
+    script.id = 'requestScript';
+    script.src = `https://api.vk.com/method/photos.get?owner_id=${id}&album_id=profile&photo_sizes=1&count=1000&access_token=${this.ACCESS_TOKEN}&v=5.131&callback=VK.processData`;
+    document.head.appendChild(script);
   }
 
   /**
@@ -30,25 +32,45 @@ class VK {
    * * @param {Object} result - Ответ от VK API.
    */
   static processData(result){
-    document.head.querySelector('script[src*="photos.get"]').remove();
+    document.head.removeChild(document.getElementById('requestScript'));
+    console.log("Ответ от VK API:", result);
 
     if (!result || result.error) {
-      alert(result.error?.error_msg ?? 'Ошибка при загрузке изображений');
+      alert(`Error: ${result.error.error_code} --> ${result.error.error_msg}`);
       return;
     }
 
-    if (result.response.items.lenght === 0) {
+    if (result.response.items.length === 0) {
       alert('Изображения не найдены в профиле.');
       return;
     }
 
     const images = result.response.items.map(item => {
+      console.log("Обработка изображения:", item); 
       return item.sizes.reduce((largest, size) => {
         return size.width * size.height > largest.width * largest.height ? size : largest;
       }, item.sizes[0]);
     });
+    console.log(images);
 
     this.lastCallback(images);
     this.lastCallback = () => {};
+  }
+
+  static getUserIdByScreenName(screenName, callback) {
+    VK.screenNameCallback = callback;
+    const script = document.createElement('script');
+    script.id = 'vkData';
+    script.src = `https://api.vk.com/method/utils.resolveScreenName?screen_name=${screenName}&access_token=${this.ACCESS_TOKEN}&v=5.131&callback=VK.processScreenNameData`;
+    document.head.appendChild(script);
+    script.onload = (...args) => {
+      console.log(args);
+    }
+  }
+
+  static processScreenNameData({response: {object_id}}) {
+    document.head.removeChild(document.getElementById('vkData'));
+    VK.screenNameCallback(object_id);
+    VK.screenNameCallback = () => {};
   }
 }
