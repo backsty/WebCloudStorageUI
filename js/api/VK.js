@@ -65,7 +65,7 @@ class VK {
     document.head.appendChild(script);
     script.onload = (...args) => {
       console.log(args);
-    }
+    };
   }
 
   static processScreenNameData({response: {object_id}}) {
