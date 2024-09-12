@@ -1,45 +1,37 @@
 /**
  * Основная функция для совершения запросов по Yandex API.
  * */
-const createRequest = (options = {}) => {
-    const xhr = new XMLHttpRequest();
-    const { method = 'GET', url, headers = {}, data = {} } = options;
+const createRequest = async (options = {}) => {
+    const url = new URL(Yandex.HOST + options.path);
 
-    if (method === 'GET' && Object.keys(data).length > 0) {
-        const params = new URLSearchParams(data);
-        url += `?${params.toString()}`;
+    if (options.data.way) {
+        url.searchParams.append('path', encodeURIComponent(options.data.way))
+    }
+    if (options.data.url) {
+        url.searchParams.append('url', encodeURIComponent(options.data.url))
+    }
+    if (options.data.media_type) {
+        url.searchParams.append('media_type', encodeURIComponent(options.data.media_type))
+    }
+    if (options.data.limit >= 0) {
+        url.searchParams.append('limit', encodeURIComponent(options.data.limit))
     }
 
-    xhr.responseType = 'json';
+    try {
+        const response = await fetch(url, {
+            method: options.method || 'GET',
+            headers : { Authorization: options.headers.Authorization },
+        });
 
-    return new Promise((resolve, reject) => {
-        try {
-            xhr.open(method, url);
-
-            for (const headerKey in headers) {
-                xhr.setRequestHeader(headerKey, headers[headerKey]);
-            }
-
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status <= 300) {
-                    resolve(xhr.response);
-                } else {
-                    reject(new Error(`Ошибка запроса: ${xhr.status}`));
-                }
-            };
-
-            xhr.onload = () => {
-                reject(new Error('Ошибка сети'));
-            };
-
-            if (method === 'POST' && Object.keys(data).length > 0) {
-                xhr.send(JSON.stringify(data));
-            } else {
-                xhr.send();
-            }
-        } catch (error) {
-            console.log('Ошибка при отправке запроса: ', error);
-            reject(error);
+        if (!response.ok) {
+            const result = await response.json();
+            console.log(result.message);
+            throw new Error(`Ошибка ${response.status}: ${result.message}`)
         }
-    });
+
+        return await response.json();
+    } catch (error) {
+        console.error('Ошибка при выполнении запроса: ', error);
+        throw error; 
+    }
 };
