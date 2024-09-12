@@ -51,6 +51,7 @@ class ImageViewer {
 
     this.element.querySelector('.show-uploaded-files').addEventListener('click', () => {
       const getModalWindow = App.getModal('filePreviewer');
+      console.log(getModalWindow);
 
       if (!document.querySelector('.uploaded-previewer-modal .content .asterisk')) {
         document.querySelector('.uploaded-previewer-modal .content').innerHTML =
