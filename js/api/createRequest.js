@@ -3,7 +3,7 @@
  * */
 const createRequest = (options = {}) => {
     const xhr = new XMLHttpRequest();
-    const { method = 'GET', url, headers = {}, data = {}, callback } = options;
+    const { method = 'GET', url, headers = {}, data = {} } = options;
 
     if (method === 'GET' && Object.keys(data).length > 0) {
         const params = new URLSearchParams(data);
