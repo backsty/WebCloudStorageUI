@@ -28,56 +28,57 @@ class Yandex {
   /**
    * Метод для выполнения запроса с использованием токена.
   */
-  static createRequest(url, method, data, callback) {
+  static async createRequest(url, method, data) {
     const token = this.getToken();
 
     if (!token) {
-      return;
+      throw new Error('Токен не был получен.');
     }
-
 
     const options = {
       method,
       headers: {
         'Authorization': `Oauth ${token}`,
         'Content-Type': 'application/json'
-      }
+      },
+      body: data ? JSON.stringify(data) : null
     };
 
-    if (data) {
-      options.body = JSON.stringify(data);
+    try {
+      const response = await fetch(`${this.HOST}${url}`, options);
+      if (!response.ok) {
+        throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      throw new Error(`Ошибка при выполнении запроса: ${error.message}`);
     }
-
-    fetch(`${this.HOST}${url}`, options)
-      .then(response => response.json)
-      .then(data => callback(null, data))
-      .catch(error => callback(error));
   }
 
 
   /**
    * Метод загрузки файла в облако
    */
-  static uploadFile(path, url, callback){
+  static async uploadFile(path, url){
     const uploadUrl = '/resources/upload';
     const data = { path, url }
-    this.createRequest(uploadUrl, 'POST', data, callback)
+    return await this.createRequest(uploadUrl, 'POST', data)
   }
 
   /**
    * Метод удаления файла из облака
    */
-  static removeFile(path, callback){
+  static async removeFile(path){
     const deleteUrl = `/resources?path=${encodeURIComponent(path)}`;
-    this.createRequest(deleteUrl, 'DELETE', null, callback);
+    return await this.createRequest(deleteUrl, 'DELETE');
   }
 
   /**
    * Метод получения всех загруженных файлов в облаке
    */
-  static getUploadedFiles(callback){
+  static async getUploadedFiles(){
     const fileUrl = '/resources/files';
-    this.createRequest(fileUrl, 'GET', null, callback);
+    return await this.createRequest(fileUrl, 'GET');
   }
 
   /**
