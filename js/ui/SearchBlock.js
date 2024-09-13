@@ -8,6 +8,8 @@ class SearchBlock {
   constructor( element ) {
     this.element = element;
     this.input = this.element.querySelector('input');
+    console.log('Инициализация SearchBlock:', this.element);
+    console.log('Поисковое поле:', this.input);
     this.registerEvents();
   }
 
@@ -18,6 +20,7 @@ class SearchBlock {
    */
   registerEvents() {
     const buttons = this.element.querySelectorAll('button');
+    console.log('Найденные кнопки:', buttons);
 
     buttons.forEach(button => {
       button.addEventListener('click', (e) => this.handleButtonClick(e));
@@ -31,21 +34,31 @@ class SearchBlock {
   handleButtonClick(e) {
     const rawUserId = this.input.value.trim();
     const userId = Number.parseInt(rawUserId);
+    console.log('Введённое значение:', rawUserId);
+    console.log('Преобразованный userId:', userId);
     
     const process = (userId) => {
       const isAddAction = e.target.classList.contains('add');
       const isReplaceAction = e.target.classList.contains('replace');
 
+      console.log('Кнопка действия:', e.target);
+      console.log('isAddAction:', isAddAction);
+      console.log('isReplaceAction:', isReplaceAction);
+
       if (isAddAction) { 
         e.target.classList.add('disabled');
+        console.log('Запрос на добавление фото для userId:', userId);
         VK.get(userId, App.imageViewer.drawImages) // запрос на добавление фото
       } else if (isReplaceAction) {
+        console.log('Очистка изображений перед заменой.');
         App.imageViewer.clear();
+        console.log('Запрос на замену фото для userId:', userId);
         VK.get(userId, App.imageViewer.drawImages) // запрос на замену фото
       }
     }
 
     if (isNaN(userId)) {
+      console.log('Поиск userId по screenName:', rawUserId);
       VK.getUserIdByScreenName(rawUserId, process);
     } else {
       process(userId);

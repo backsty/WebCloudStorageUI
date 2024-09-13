@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Класс Yandex
  * Используется для управления облаком.
@@ -12,13 +14,17 @@ class Yandex {
   */
   static getToken(){
     let token = localStorage.getItem('yandexToken');
+    console.log('Полученный токен из локального хранилища:', token);
 
     if (!token) {
       token = prompt('Введите ваш Oauth токен для Yandex.Disk');
+      console.log('Введённый токен:', token);
       if (token) {
         localStorage.setItem('yandexToken', token);
+        console.log('Токен сохранён в локальном хранилище.');
       } else {
         alert('Вы не ввели токен. Попробуйте ещё раз!');
+        console.log('Токен не был введён.');
       }
     }
     
@@ -26,64 +32,49 @@ class Yandex {
   }
 
   /**
-   * Метод для выполнения запроса с использованием токена.
-  */
-  static async createRequest(url, method, data) {
-    const token = this.getToken();
-
-    if (!token) {
-      throw new Error('Токен не был получен.');
-    }
-
-    const options = {
-      method,
-      headers: {
-        'Authorization': `Oauth ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: data ? JSON.stringify(data) : null
-    };
-
-    try {
-      const response = await fetch(`${this.HOST}${url}`, options);
-      if (!response.ok) {
-        throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-      }
-      return await response.json();
-    } catch (error) {
-      throw new Error(`Ошибка при выполнении запроса: ${error.message}`);
-    }
-  }
-
-  /**
    * Метод загрузки файла в облако
    */
-  static async uploadFile(path, url){
-    const uploadUrl = '/resources/upload';
-    const data = { path, url }
-    return await this.createRequest(uploadUrl, 'POST', data)
+  static uploadFile(path, url, callback) {
+    createRequest({
+      url: `${Yandex.HOST}/resources/upload`,
+      method: 'POST',
+      headers: { 'Authorization': `OAuth ${this.getToken()}` },
+      data: { path, url },
+      callback,
+    });
   }
 
   /**
    * Метод удаления файла из облака
    */
-  static async removeFile(path){
-    const deleteUrl = `/resources?path=${encodeURIComponent(path)}`;
-    return await this.createRequest(deleteUrl, 'DELETE');
+  static removeFile(path, callback) {
+    createRequest({ 
+      url: `${Yandex.HOST}/resources`,
+      method: 'DELETE',
+      headers: { 'Authorization': `OAuth ${this.getToken()}` },
+      data: { path },
+      callback,
+    });
   }
 
   /**
    * Метод получения всех загруженных файлов в облаке
    */
-  static async getUploadedFiles(){
-    const fileUrl = '/resources/files';
-    return await this.createRequest(fileUrl, 'GET');
+  static getUploadedFiles(callback) {
+    createRequest({ 
+      url: `${Yandex.HOST}/resources/files`,
+      method: 'GET',
+      headers: { 'Authorization': `OAuth ${this.getToken()}` },
+      data: {},
+      callback,
+    });
   }
 
   /**
    * Метод скачивания файлов по URL
    */
-  static downloadFileByUrl(url){
+  static downloadFileByUrl(url, callback) {
+    console.log('Скачивание файла по URL:', url);
     const link = document.createElement('a');
     link.href = url;
     link.download = '';

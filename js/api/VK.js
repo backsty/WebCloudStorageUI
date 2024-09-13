@@ -12,7 +12,6 @@ class VK {
   static lastCallback;
   static screenNameCallback;
 
-
   /**
    * Получает изображения из профиля VK.
    * @param {string} id - ID пользователя VK.
