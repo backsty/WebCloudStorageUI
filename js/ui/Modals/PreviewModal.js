@@ -49,10 +49,11 @@ class PreviewModal extends BaseModal {
    */
   showImages(data) {
     console.log('Показ изображений. Количество:', data ? data.length : 0);
-    if (!data || data.length === 0) {
-      this.domElement.querySelector('.content').innerHTML = 'None';
+    if (!Array.isArray(data) || data.length === 0) {
+      this.contentBlock.innerHTML = 'None';
       return;
     }
+
     const imageContainer = data.reverse().map(element => this.getImageInfo(element));
     this.contentBlock.innerHTML = imageContainer.join('');
     console.log('Изображения отрисованы');
@@ -89,7 +90,7 @@ class PreviewModal extends BaseModal {
           <tr><th>Имя</th><th>Создано</th><th>Размер</th></tr>
         </thead>
         <tbody>
-          <tr><td>AAA</td><td>${this.name}</td><td>${(item.size / 1024).toFixed(1)}б</td></tr>
+          <tr><td>${item.name}</td><td>${this.formatDate(item.created)}</td><td>${(item.size / 1024).toFixed(1)}б</td></tr>
         </tbody>
         </table>
         <div class="buttons-wrapper">

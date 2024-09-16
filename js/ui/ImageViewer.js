@@ -33,8 +33,8 @@ class ImageViewer {
       if (e.target.tagName.toLowerCase() === 'img') {
         e.target.classList.toggle('selected');
         console.log('Изображение выделено/снято выделение:', e.target.src);
-        this.checkButtonText();
       }
+      this.checkButtonText();
     });
 
     this.element.querySelector('.select-all').addEventListener('click', () => {
@@ -67,10 +67,10 @@ class ImageViewer {
 
       getModalWindow.open();
 
-      Yandex.getUploadedFiles((_, files) => {
-        console.log('Полученные файлы:', files);
-        getModalWindow.showImages(files.items);
-      })
+      Yandex.getUploadedFiles((_, preview) => {
+        console.log('Полученные файлы:', preview);
+        getModalWindow.showImages(preview.items);
+      });
     });
 
     this.element.querySelector('.send').addEventListener('click', () => {

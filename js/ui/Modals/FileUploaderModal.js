@@ -5,7 +5,7 @@
  * Используется как всплывающее окно для загрузки изображений
  */
 class FileUploaderModal extends BaseModal {
-  constructor( element ) {
+  constructor(element) {
     super(element);
     this.uploaderWindow = document.querySelector(".file-uploader-modal");
     this.contentBlock = this.domElement.querySelector('.content');
@@ -53,7 +53,7 @@ class FileUploaderModal extends BaseModal {
   /**
    * Отображает все полученные изображения в теле всплывающего окна
    */
-  showImages( images ) {
+  showImages(images) {
     console.log('Отображение изображений в модальном окне. Количество:', images.length);
     const imageContainer = images.reverse().map(element => this.getImageHTML(element));
     this.contentBlock.innerHTML = imageContainer.join('');
@@ -62,7 +62,7 @@ class FileUploaderModal extends BaseModal {
   /**
    * Формирует HTML разметку с изображением, полем ввода для имени файла и кнопкной загрузки
    */
-  getImageHTML( item ) {
+  getImageHTML(item) {
     console.log('Формирование HTML разметки для изображения:', item);
     return `
       <div class="image-preview-container">
@@ -86,7 +86,7 @@ class FileUploaderModal extends BaseModal {
   /**
    * Валидирует изображение и отправляет его на сервер
    */
-  sendImage( imageContainer ) {
+  sendImage(imageContainer) {
     const image = imageContainer.querySelector('input');
     const imageValue = image.value.trim();
     console.log('Попытка отправить изображение. Путь к файлу:', imageValue);

@@ -36,10 +36,10 @@ class Yandex {
    */
   static uploadFile(path, url, callback) {
     createRequest({
-      url: `${Yandex.HOST}/resources/upload`,
       method: 'POST',
-      headers: { 'Authorization': `OAuth ${this.getToken()}` },
+      url: `${Yandex.HOST}/resources/upload`,
       data: { path, url },
+      headers: { "Authorization": `OAuth ${Yandex.getToken()}`, "Accept": 'application/json', "Content-Type": 'application/json'},
       callback,
     });
   }
@@ -49,10 +49,10 @@ class Yandex {
    */
   static removeFile(path, callback) {
     createRequest({ 
-      url: `${Yandex.HOST}/resources`,
       method: 'DELETE',
-      headers: { 'Authorization': `OAuth ${this.getToken()}` },
+      url: `${Yandex.HOST}/resources`,
       data: { path },
+      headers: { "Authorization": `OAuth ${Yandex.getToken()}`, "Accept": 'application/json', "Content-Type": 'application/json'},
       callback,
     });
   }
@@ -61,11 +61,11 @@ class Yandex {
    * Метод получения всех загруженных файлов в облаке
    */
   static getUploadedFiles(callback) {
-    createRequest({ 
-      url: `${Yandex.HOST}/resources/files`,
+    createRequest({
       method: 'GET',
-      headers: { 'Authorization': `OAuth ${this.getToken()}` },
-      data: {},
+      url: `${Yandex.HOST}/resources/files`,
+      data: { mediaType: "image", limit: 1000000 },
+      headers: { "Authorization": `OAuth ${Yandex.getToken()}`},
       callback,
     });
   }
@@ -73,11 +73,10 @@ class Yandex {
   /**
    * Метод скачивания файлов по URL
    */
-  static downloadFileByUrl(url, callback) {
+  static downloadFileByUrl(url) {
     console.log('Скачивание файла по URL:', url);
     const link = document.createElement('a');
     link.href = url;
-    link.download = '';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
